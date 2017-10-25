@@ -43,6 +43,9 @@ class StorageManager : private Noncopyable {
  protected:
   StorageManager() {}
   StorageManager& operator=(StorageManager&&) = default;
+  // TODO(toni): Might sets work at that point?
+  std::vector<std::string> _table_names;
+  std::vector<std::shared_ptr<Table>> _table_pointers;
 
   // Implementation goes here
 };
