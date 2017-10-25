@@ -28,17 +28,23 @@ void Table::add_column(const std::string& name, const std::string& type) {
   if (this->chunk_count() == 0) {
     this->create_new_chunk();
   }
+
+  for (auto & chunk : table_chunks) {
+    chunk.add_column(make_shared_by_column_type<BaseColumn, ValueColumn>(type));
+    std::cout << "ASDFASDF " << chunk.col_count();
+  }
 }
 
 void Table::append(std::vector<AllTypeVariant> values) {
-  if (this->chunk_size() > table_chunks.back().size()) {
-    std::cout << "1231231";
+  if (this->chunk_size() == table_chunks.back().size()) {
+    this->create_new_chunk();
   }
-  // Implementation goes here
+  std::cout << table_chunks.back().col_count() << std::endl;
+  table_chunks.back().append(values);
 }
 
 void Table::create_new_chunk() {
-  // Implementation goes here
+  table_chunks.push_back(Chunk{});
 }
 
 uint16_t Table::col_count() const {
