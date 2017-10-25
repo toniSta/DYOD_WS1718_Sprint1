@@ -14,27 +14,22 @@
 
 namespace opossum {
 
-void Chunk::add_column(std::shared_ptr<BaseColumn> column) {
-  // Implementation goes here
-}
+void Chunk::add_column(std::shared_ptr<BaseColumn> column) { chunk_columns.push_back(column); }
 
 void Chunk::append(std::vector<AllTypeVariant> values) {
   // Implementation goes here
 }
 
-std::shared_ptr<BaseColumn> Chunk::get_column(ColumnID column_id) const {
-  // Implementation goes here
-  return nullptr;
-}
+std::shared_ptr<BaseColumn> Chunk::get_column(ColumnID column_id) const { return chunk_columns.at(column_id); }
 
-uint16_t Chunk::col_count() const {
-  // Implementation goes here
-  return 0;
-}
+uint16_t Chunk::col_count() const { return chunk_columns.size(); }
 
 uint32_t Chunk::size() const {
-  // Implementation goes here
-  return 0;
+  if (chunk_columns.size() == 0) {
+    return 0;
+  } else {
+    return this->get_column(ColumnID{0})->size();
+  }
 }
 
 }  // namespace opossum
