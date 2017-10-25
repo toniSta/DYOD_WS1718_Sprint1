@@ -18,14 +18,22 @@
 namespace opossum {
 
 void Table::add_column_definition(const std::string& name, const std::string& type) {
-  // Implementation goes here
+  column_names_vector.push_back(name);
+  column_types_vector.push_back(type);
 }
 
 void Table::add_column(const std::string& name, const std::string& type) {
-  // Implementation goes here
+  this->add_column_definition(name, type);
+
+  if (this->chunk_count() == 0) {
+    this->create_new_chunk();
+  }
 }
 
 void Table::append(std::vector<AllTypeVariant> values) {
+  if (this->chunk_size() > table_chunks.back().size()) {
+    std::cout << "1231231";
+  }
   // Implementation goes here
 }
 
@@ -44,8 +52,7 @@ uint64_t Table::row_count() const {
 }
 
 ChunkID Table::chunk_count() const {
-  // Implementation goes here
-  return ChunkID{0};
+  return ChunkID{table_chunks.size()};
 }
 
 ColumnID Table::column_id_by_name(const std::string& column_name) const {
@@ -54,8 +61,7 @@ ColumnID Table::column_id_by_name(const std::string& column_name) const {
 }
 
 uint32_t Table::chunk_size() const {
-  // Implementation goes here
-  return 0;
+  return max_chunk_size;
 }
 
 const std::vector<std::string>& Table::column_names() const {
