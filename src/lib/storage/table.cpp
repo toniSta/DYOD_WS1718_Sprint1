@@ -59,7 +59,7 @@ uint64_t Table::row_count() const {
   }
 }
 
-ChunkID Table::chunk_count() const { return ChunkID{table_chunks.size()}; }
+ChunkID Table::chunk_count() const { return static_cast<ChunkID>(table_chunks.size()); }
 
 ColumnID Table::column_id_by_name(const std::string& column_name) const {
   for (uint16_t column_id = 0; column_id < column_names_vector.size(); ++column_id) {
