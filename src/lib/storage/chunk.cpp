@@ -18,7 +18,7 @@ void Chunk::add_column(std::shared_ptr<BaseColumn> column) {
   // Implementation goes here
 }
 
-void Chunk::append(std::vector<AllTypeVariant> values) {
+void Chunk::append(const std::vector<AllTypeVariant>& values) {
   // Implementation goes here
 }
 
