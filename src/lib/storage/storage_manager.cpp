@@ -56,7 +56,15 @@ bool StorageManager::has_table(const std::string& name) const {
 std::vector<std::string> StorageManager::table_names() const { return _table_names; }
 
 void StorageManager::print(std::ostream& out) const {
-  // Implementation goes here
+  for (uint16_t _table_index = 0; _table_index < _table_names.size(); ++_table_index) {
+    out << "===========================================" << std::endl;
+    out << "\tTable name: " << _table_names.at(_table_index) << std::endl;
+    out << "\t\t#Columns: " << _table_pointers.at(_table_index)->col_count() << std::endl;
+    out << "\t\t#Rows: " << _table_pointers.at(_table_index)->row_count() << std::endl;
+    out << "\t\t#Chunks: " << _table_pointers.at(_table_index)->chunk_count() << std::endl;
+    out << "===========================================" << std::endl;
+    out << std::endl;
+  }
 }
 
 void StorageManager::reset() {
