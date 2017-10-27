@@ -19,8 +19,10 @@ void Chunk::add_column(std::shared_ptr<BaseColumn> column) { _chunk_columns.push
 void Chunk::append(std::vector<AllTypeVariant> values) {
   DebugAssert(values.size() == this->col_count(), "Wrong number of values.");
 
-  for (uint16_t column_id = 0; column_id < values.size(); ++column_id) {
-    this->get_column(ColumnID{column_id})->append(values.at(column_id));
+  uint16_t column_id = 0;
+  for (auto& value : values) {
+    this->get_column(ColumnID{column_id})->append(value);
+    column_id++;
   }
 }
 
