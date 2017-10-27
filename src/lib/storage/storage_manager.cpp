@@ -15,8 +15,7 @@ StorageManager& StorageManager::get() {
 }
 
 void StorageManager::add_table(const std::string& name, std::shared_ptr<Table> table) {
-  // TODO(toni): do we need that check?
-  if (has_table(name) == true) {
+  if (has_table(name)) {
     throw std::runtime_error("Table already exists.");
   } else {
     _table_names.push_back(name);
@@ -45,14 +44,9 @@ std::shared_ptr<Table> StorageManager::get_table(const std::string& name) const 
 }
 
 bool StorageManager::has_table(const std::string& name) const {
-  if (std::find(_table_names.begin(), _table_names.end(), name) != _table_names.end()) {
-    return true;
-  } else {
-    return false;
-  }
+  return std::find(_table_names.begin(), _table_names.end(), name) != _table_names.end() ? true : false;
 }
 
-// TODO(all) write test for this one
 std::vector<std::string> StorageManager::table_names() const { return _table_names; }
 
 void StorageManager::print(std::ostream& out) const {

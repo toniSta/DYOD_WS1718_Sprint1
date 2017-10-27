@@ -46,7 +46,5 @@ class StorageManager : private Noncopyable {
   // TODO(toni): Might sets work at that point?
   std::vector<std::string> _table_names;
   std::vector<std::shared_ptr<Table>> _table_pointers;
-
-  // Implementation goes here
 };
 }  // namespace opossum
