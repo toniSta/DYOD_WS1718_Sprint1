@@ -17,25 +17,27 @@
 
 namespace opossum {
 
+Table::Table(const uint32_t chunk_size) {
+  _max_chunk_size = chunk_size;
+  this->create_new_chunk();
+}
+
 void Table::add_column_definition(const std::string& name, const std::string& type) {
   _column_names_vector.push_back(name);
   _column_types_vector.push_back(type);
 }
 
 void Table::add_column(const std::string& name, const std::string& type) {
-  this->add_column_definition(name, type);
-
-  if (this->chunk_size() > 0 && this->chunk_count() == 0) {
-    this->create_new_chunk();
-  } else {
-    for (auto& chunk : _table_chunks) {
-      chunk.add_column(make_shared_by_column_type<BaseColumn, ValueColumn>(type));
-    }
+  if (_table_chunks.front().size() > 0) {
+    throw std::runtime_error("Add column only works for empty tables.");
   }
+  this->add_column_definition(name, type);
+  _table_chunks.front().add_column(make_shared_by_column_type<BaseColumn, ValueColumn>(type));
 }
 
 void Table::append(std::vector<AllTypeVariant> values) {
-  if (this->chunk_size() == _table_chunks.back().size()) {
+  // Create a new chunk if chunk size is not unlimited and the current chunk is full.
+  if (this->chunk_size() != 0 && this->chunk_size() == _table_chunks.back().size()) {
     this->create_new_chunk();
   }
   _table_chunks.back().append(values);
@@ -49,14 +51,10 @@ void Table::create_new_chunk() {
   }
 }
 
-uint16_t Table::col_count() const { return _column_names_vector.size(); }
+uint16_t Table::col_count() const { return _table_chunks.front().col_count(); }
 
 uint64_t Table::row_count() const {
-  if (_table_chunks.empty()) {
-    return 0;
-  } else {
-    return (_table_chunks.size() - 1) * this->chunk_count() + _table_chunks.back().size();
-  }
+  return (_table_chunks.size() - 1) * this->chunk_size() + _table_chunks.back().size();
 }
 
 ChunkID Table::chunk_count() const { return static_cast<ChunkID>(_table_chunks.size()); }
