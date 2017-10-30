@@ -60,10 +60,12 @@ uint64_t Table::row_count() const {
 ChunkID Table::chunk_count() const { return static_cast<ChunkID>(_table_chunks.size()); }
 
 ColumnID Table::column_id_by_name(const std::string& column_name) const {
-  for (uint16_t column_id = 0; column_id < _column_names_vector.size(); ++column_id) {
-    if (_column_names_vector.at(column_id) == column_name) {
+  uint16_t column_id = 0;
+  for (auto& name : _column_names_vector) {
+    if (name == column_name) {
       return ColumnID{column_id};
     }
+    column_id++;
   }
   throw std::runtime_error("Column name not found.");
 }
