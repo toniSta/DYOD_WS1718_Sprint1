@@ -17,10 +17,7 @@
 
 namespace opossum {
 
-Table::Table(const uint32_t chunk_size) {
-  _max_chunk_size = chunk_size;
-  this->create_new_chunk();
-}
+Table::Table(const uint32_t chunk_size) : _max_chunk_size(chunk_size) { this->create_new_chunk(); }
 
 void Table::add_column_definition(const std::string& name, const std::string& type) {
   _column_names_vector.push_back(name);
