@@ -18,44 +18,45 @@ void StorageManager::add_table(const std::string& name, std::shared_ptr<Table> t
   if (has_table(name)) {
     throw std::runtime_error("Table already exists.");
   } else {
-    _table_names.push_back(name);
-    _table_pointers.push_back(table);
+    _tables.insert(std::make_pair(name, table));
   }
 }
 
 void StorageManager::drop_table(const std::string& name) {
-  for (uint16_t _table_index = 0; _table_index < _table_names.size(); ++_table_index) {
-    if (_table_names.at(_table_index) == name) {
-      _table_names.erase(_table_names.begin() + _table_index);
-      _table_pointers.erase(_table_pointers.begin() + _table_index);
-      return;
-    }
+  // std::map::erase() returns 0 if nothing was erased
+  if (_tables.erase(name) == 0) {
+    throw std::runtime_error("Table name not found.");
   }
-  throw std::runtime_error("Table name not found.");
 }
 
 std::shared_ptr<Table> StorageManager::get_table(const std::string& name) const {
-  for (uint16_t _table_index = 0; _table_index < _table_names.size(); ++_table_index) {
-    if (_table_names.at(_table_index) == name) {
-      return _table_pointers.at(_table_index);
-    }
+  auto search = _tables.find(name);
+  if (search != _tables.end()) {
+    return search->second;
+  } else {
+    throw std::runtime_error("Table name not found.");
   }
-  throw std::runtime_error("Table name not found.");
 }
 
 bool StorageManager::has_table(const std::string& name) const {
-  return std::find(_table_names.begin(), _table_names.end(), name) != _table_names.end() ? true : false;
+  return (_tables.find(name) != _tables.end()) ? true : false;
 }
 
-std::vector<std::string> StorageManager::table_names() const { return _table_names; }
+std::vector<std::string> StorageManager::table_names() const {
+  std::vector<std::string> _names;
+  for (auto _table : _tables) {
+    _names.push_back(_table.first);
+  }
+  return _names;
+}
 
 void StorageManager::print(std::ostream& out) const {
-  for (uint16_t _table_index = 0; _table_index < _table_names.size(); ++_table_index) {
+  for (auto _table : _tables) {
     out << "===========================================" << std::endl;
-    out << "\tTable name: " << _table_names.at(_table_index) << std::endl;
-    out << "\t\t#Columns: " << _table_pointers.at(_table_index)->col_count() << std::endl;
-    out << "\t\t#Rows: " << _table_pointers.at(_table_index)->row_count() << std::endl;
-    out << "\t\t#Chunks: " << _table_pointers.at(_table_index)->chunk_count() << std::endl;
+    out << "\tTable name: " << _table.first << std::endl;
+    out << "\t\t#Columns: " << _table.second->col_count() << std::endl;
+    out << "\t\t#Rows: " << _table.second->row_count() << std::endl;
+    out << "\t\t#Chunks: " << _table.second->chunk_count() << std::endl;
     out << "===========================================" << std::endl;
     out << std::endl;
   }
