@@ -74,4 +74,6 @@ Chunk& Table::get_chunk(ChunkID chunk_id) { throw std::runtime_error("Implement 
 
 const Chunk& Table::get_chunk(ChunkID chunk_id) const { throw std::runtime_error("Implement Table::get_chunk"); }
 
+void Table::compress_chunk(ChunkID chunk_id) { throw std::runtime_error("TODO"); }
+
 }  // namespace opossum
