@@ -44,11 +44,11 @@ void Table::append(std::vector<AllTypeVariant> values) {
 }
 
 void Table::create_new_chunk() {
-  Chunk _chunk;
+  Chunk chunk;
   for (auto&& type : _column_types_vector) {
-    _chunk.add_column(make_shared_by_column_type<BaseColumn, ValueColumn>(type));
+    chunk.add_column(make_shared_by_column_type<BaseColumn, ValueColumn>(type));
   }
-  _table_chunks.push_back(std::move(_chunk));
+  _table_chunks.push_back(std::move(chunk));
 }
 
 uint16_t Table::col_count() const { return _table_chunks.front().col_count(); }
