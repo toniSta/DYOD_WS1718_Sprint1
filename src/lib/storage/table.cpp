@@ -80,6 +80,8 @@ Chunk& Table::get_chunk(ChunkID chunk_id) { return _table_chunks.at(chunk_id); }
 
 const Chunk& Table::get_chunk(ChunkID chunk_id) const { return _table_chunks.at(chunk_id); }
 
-void Table::compress_chunk(ChunkID chunk_id) { throw std::runtime_error("TODO"); }
+void Table::compress_chunk(ChunkID chunk_id) {
+  _table_chunks.at(chunk_id).compress();
+}
 
 }  // namespace opossum

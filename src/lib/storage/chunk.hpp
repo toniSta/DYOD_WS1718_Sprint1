@@ -45,6 +45,9 @@ class Chunk : private Noncopyable {
   // Returns the column at a given position
   std::shared_ptr<BaseColumn> get_column(ColumnID column_id) const;
 
+  // creates dictionary and attribute vectors
+  void compress();
+
  protected:
   std::vector<std::shared_ptr<BaseColumn>> _chunk_columns;
 };
