@@ -20,6 +20,9 @@ namespace opossum {
 Table::Table(const uint32_t chunk_size) : _max_chunk_size(chunk_size) { this->create_new_chunk(); }
 
 void Table::add_column_definition(const std::string& name, const std::string& type) {
+  if (std::find(_column_names_vector.begin(), _column_names_vector.end(), name) != _column_names_vector.end()) {
+    throw std::runtime_error("Column name already exists.");
+  }
   _column_names_vector.push_back(name);
   _column_types_vector.push_back(type);
 }
@@ -54,7 +57,7 @@ uint64_t Table::row_count() const {
   return (_table_chunks.size() - 1) * this->chunk_size() + _table_chunks.back().size();
 }
 
-ChunkID Table::chunk_count() const { return static_cast<ChunkID>(_table_chunks.size()); }
+ChunkID Table::chunk_count() const { return ChunkID(_table_chunks.size()); }
 
 ColumnID Table::column_id_by_name(const std::string& column_name) const {
   auto search = std::find(_column_names_vector.begin(), _column_names_vector.end(), column_name);
