@@ -41,11 +41,11 @@ void Table::append(std::vector<AllTypeVariant> values) {
 }
 
 void Table::create_new_chunk() {
-  _table_chunks.push_back(Chunk{});
-
-  for (auto& type : _column_types_vector) {
-    _table_chunks.back().add_column(make_shared_by_column_type<BaseColumn, ValueColumn>(type));
+  Chunk _chunk;
+  for (auto&& type : _column_types_vector) {
+    _chunk.add_column(make_shared_by_column_type<BaseColumn, ValueColumn>(type));
   }
+  _table_chunks.push_back(std::move(_chunk));
 }
 
 uint16_t Table::col_count() const { return _table_chunks.front().col_count(); }
@@ -57,14 +57,12 @@ uint64_t Table::row_count() const {
 ChunkID Table::chunk_count() const { return static_cast<ChunkID>(_table_chunks.size()); }
 
 ColumnID Table::column_id_by_name(const std::string& column_name) const {
-  uint16_t column_id = 0;
-  for (auto& name : _column_names_vector) {
-    if (name == column_name) {
-      return ColumnID{column_id};
-    }
-    column_id++;
+  auto search = std::find(_column_names_vector.begin(), _column_names_vector.end(), column_name);
+  if (search != _column_names_vector.end()) {
+    return ColumnID{std::distance(_column_names_vector.begin(), search)};
+  } else {
+    throw std::runtime_error("Column name not found.");
   }
-  throw std::runtime_error("Column name not found.");
 }
 
 uint32_t Table::chunk_size() const { return _max_chunk_size; }

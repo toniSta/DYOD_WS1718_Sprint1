@@ -15,43 +15,29 @@ StorageManager& StorageManager::get() {
 }
 
 void StorageManager::add_table(const std::string& name, std::shared_ptr<Table> table) {
-  if (has_table(name)) {
-    throw std::runtime_error("Table already exists.");
-  } else {
-    _tables.insert(std::make_pair(name, table));
-  }
+  auto result = _tables.insert({name, table});
+  if (!result.second) throw std::runtime_error("Table already exists.");
 }
 
 void StorageManager::drop_table(const std::string& name) {
   // std::map::erase() returns 0 if nothing was erased
-  if (_tables.erase(name) == 0) {
-    throw std::runtime_error("Table name not found.");
-  }
+  if (!_tables.erase(name)) throw std::runtime_error("Table name not found.");
 }
 
-std::shared_ptr<Table> StorageManager::get_table(const std::string& name) const {
-  auto search = _tables.find(name);
-  if (search != _tables.end()) {
-    return search->second;
-  } else {
-    throw std::runtime_error("Table name not found.");
-  }
-}
+std::shared_ptr<Table> StorageManager::get_table(const std::string& name) const { return _tables.at(name); }
 
-bool StorageManager::has_table(const std::string& name) const {
-  return (_tables.find(name) != _tables.end()) ? true : false;
-}
+bool StorageManager::has_table(const std::string& name) const { return (_tables.find(name) != _tables.end()); }
 
 std::vector<std::string> StorageManager::table_names() const {
   std::vector<std::string> _names;
-  for (auto _table : _tables) {
+  for (auto& _table : _tables) {
     _names.push_back(_table.first);
   }
   return _names;
 }
 
 void StorageManager::print(std::ostream& out) const {
-  for (auto _table : _tables) {
+  for (auto& _table : _tables) {
     out << "===========================================" << std::endl;
     out << "\tTable name: " << _table.first << std::endl;
     out << "\t\t#Columns: " << _table.second->col_count() << std::endl;
