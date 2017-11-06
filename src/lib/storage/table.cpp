@@ -62,7 +62,7 @@ ChunkID Table::chunk_count() const { return ChunkID(_table_chunks.size()); }
 ColumnID Table::column_id_by_name(const std::string& column_name) const {
   auto search = std::find(_column_names_vector.begin(), _column_names_vector.end(), column_name);
   if (search != _column_names_vector.end()) {
-    return ColumnID{std::distance(_column_names_vector.begin(), search)};
+    return ColumnID(std::distance(_column_names_vector.begin(), search));
   } else {
     throw std::runtime_error("Column name not found.");
   }
