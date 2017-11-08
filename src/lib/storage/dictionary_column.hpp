@@ -25,16 +25,23 @@ class DictionaryColumn : public BaseColumn {
   /**
    * Creates a Dictionary column from a given value column.
    */
-  explicit DictionaryColumn(const std::shared_ptr<BaseColumn>& base_column);
+  explicit DictionaryColumn(const std::shared_ptr<BaseColumn>& base_column) {
+    const auto value_column = std::dynamic_pointer_cast<ValueColumn<T>>(base_column);
+    std::cout << (*value_column)[0] << std::endl;
+
+    return;
+  };
 
   // SEMINAR INFORMATION: Since most of these methods depend on the template parameter, you will have to implement
   // the DictionaryColumn in this file. Replace the method signatures with actual implementations.
 
   // return the value at a certain position. If you want to write efficient operators, back off!
-  const AllTypeVariant operator[](const size_t i) const override;
+  const AllTypeVariant operator[](const size_t i) const override {
+    return 42;
+  };
 
   // return the value at a certain position.
-  const T get(const size_t i) { return _dictionary->get(_attribute_vector->get(i)); }
+  const T get(const size_t i) { return _dictionary->at(_attribute_vector->at(i)); }
 
   // dictionary columns are immutable
   void append(const AllTypeVariant&) override {throw std::runtime_error("dictionary columns are immutable."); }
@@ -78,11 +85,11 @@ class DictionaryColumn : public BaseColumn {
   size_t unique_values_count() const { return _dictionary->size(); }
 
   // return the number of entries
-  size_t size() const { return _attribute_vector->size(); }
+  size_t size() const override { return _attribute_vector->size(); }
 
  protected:
   std::shared_ptr<std::vector<T>> _dictionary;
-  std::shared_ptr<BaseAttributeVector> _attribute_vector;
+  std::shared_ptr<std::vector<uint64_t>> _attribute_vector;
 };
 
 }  // namespace opossum
