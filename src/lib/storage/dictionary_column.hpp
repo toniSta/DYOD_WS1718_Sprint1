@@ -1,14 +1,16 @@
 #pragma once
 
+#include <algorithm>
+#include <limits>
 #include <memory>
 #include <string>
 #include <utility>
 #include <vector>
 
 #include "all_type_variant.hpp"
-#include "types.hpp"
-#include "type_cast.hpp"
 #include "fitted_attribute_vector.hpp"
+#include "type_cast.hpp"
+#include "types.hpp"
 
 namespace opossum {
 
@@ -28,32 +30,28 @@ class DictionaryColumn : public BaseColumn {
    */
   explicit DictionaryColumn(const std::shared_ptr<BaseColumn>& base_column) {
     const auto value_column = std::dynamic_pointer_cast<ValueColumn<T>>(base_column);
+    const auto& values = value_column->values();
 
-    std::vector<T> values_vector;
-    for (size_t value = 0; value < value_column->size(); ++value) {
-      values_vector.push_back(type_cast<T>((*value_column)[value]));
-    }
-
-    _dictionary = std::make_shared<std::vector<T>>(values_vector);
+    _dictionary = std::make_shared<std::vector<T>>(values);
 
     // sort and make unique
     std::sort(_dictionary->begin(), _dictionary->end());
-    _dictionary->erase(std::unique(_dictionary->begin(), _dictionary->end()), _dictionary->end()); 
+    _dictionary->erase(std::unique(_dictionary->begin(), _dictionary->end()), _dictionary->end());
 
-    uint8_t required_bits = std::ceil(std::log2(this->unique_values_count()));
+    const uint8_t required_bits = std::ceil(std::log2(this->unique_values_count()));
     if (required_bits <= 8) {
-      _attribute_vector = std::make_shared<FittedAttributeVector<uint8_t>>(values_vector.size());
+      _attribute_vector = std::make_shared<FittedAttributeVector<uint8_t>>(value_column->size());
     } else if (required_bits <= 16) {
-      _attribute_vector = std::make_shared<FittedAttributeVector<uint16_t>>(values_vector.size());
+      _attribute_vector = std::make_shared<FittedAttributeVector<uint16_t>>(value_column->size());
     } else if (required_bits <= 32) {
-      _attribute_vector = std::make_shared<FittedAttributeVector<uint32_t>>(values_vector.size());
+      _attribute_vector = std::make_shared<FittedAttributeVector<uint32_t>>(value_column->size());
     }
 
-    for (size_t value = 0; value < values_vector.size(); ++value) {
-      _attribute_vector->set(value, this->lower_bound(values_vector[value]));
+    for (size_t value = 0; value < values.size(); ++value) {
+      _attribute_vector->set(value, this->lower_bound(values.at(value)));
     }
 
-    // TODO delete following
+    // TODO(marcel) delete following
 
     // for (size_t i = 0; i < _dictionary->size(); i++) {
     //   std::cout << _dictionary->at(i) << std::endl;
@@ -62,15 +60,13 @@ class DictionaryColumn : public BaseColumn {
     // for (size_t i = 0; i < _attribute_vector->size(); i++) {
     //   std::cout << _attribute_vector->get(i) << std::endl;
     // }
-  };
+  }
 
   // SEMINAR INFORMATION: Since most of these methods depend on the template parameter, you will have to implement
   // the DictionaryColumn in this file. Replace the method signatures with actual implementations.
 
   // return the value at a certain position. If you want to write efficient operators, back off!
-  const AllTypeVariant operator[](const size_t i) const override {
-    return 42;
-  };
+  const AllTypeVariant operator[](const size_t i) const override { return 42; }
 
   // return the value at a certain position.
   const T get(const size_t i) { return 1; }
@@ -92,22 +88,22 @@ class DictionaryColumn : public BaseColumn {
   ValueID lower_bound(T value) {
     auto dict_iterator = std::lower_bound(_dictionary->cbegin(), _dictionary->cend(), value);
     if (dict_iterator == _dictionary->cend())
-        return INVALID_VALUE_ID;
+      return INVALID_VALUE_ID;
     else
-        return ValueID(std::distance(_dictionary->cbegin(), dict_iterator));
+      return ValueID(std::distance(_dictionary->cbegin(), dict_iterator));
   }
 
   // same as lower_bound(T), but accepts an AllTypeVariant
-  ValueID lower_bound(const AllTypeVariant& value)  { return ValueID(lower_bound(type_cast<T>(value))); }
+  ValueID lower_bound(const AllTypeVariant& value) { return ValueID(lower_bound(type_cast<T>(value))); }
 
   // returns the first value ID that refers to a value > the search value
   // returns INVALID_VALUE_ID if all values are smaller than or equal to the search value
   ValueID upper_bound(T value) {
     auto dict_iterator = std::upper_bound(_dictionary->cbegin(), _dictionary->cend(), value);
     if (dict_iterator == _dictionary->cend())
-        return INVALID_VALUE_ID;
+      return INVALID_VALUE_ID;
     else
-        return ValueID(std::distance(_dictionary->cbegin(), dict_iterator));
+      return ValueID(std::distance(_dictionary->cbegin(), dict_iterator));
   }
 
   // same as upper_bound(T), but accepts an AllTypeVariant
