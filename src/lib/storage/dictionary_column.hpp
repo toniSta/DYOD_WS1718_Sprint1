@@ -4,12 +4,11 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include <algorithm>
-#include <cmath>
 
 #include "all_type_variant.hpp"
 #include "types.hpp"
 #include "type_cast.hpp"
+#include "fitted_attribute_vector.hpp"
 
 namespace opossum {
 
@@ -36,22 +35,33 @@ class DictionaryColumn : public BaseColumn {
     }
 
     _dictionary = std::make_shared<std::vector<T>>(values_vector);
-    _attribute_vector = std::make_shared<std::vector<uint64_t>>();
 
     // sort and make unique
     std::sort(_dictionary->begin(), _dictionary->end());
     _dictionary->erase(std::unique(_dictionary->begin(), _dictionary->end()), _dictionary->end()); 
 
-    for (const auto& value : values_vector) {
-      _attribute_vector->push_back(this->lower_bound(value));
+    uint8_t required_bits = std::ceil(std::log2(this->unique_values_count()));
+    if (required_bits <= 8) {
+      _attribute_vector = std::make_shared<FittedAttributeVector<uint8_t>>(values_vector.size());
+    } else if (required_bits <= 16) {
+      _attribute_vector = std::make_shared<FittedAttributeVector<uint16_t>>(values_vector.size());
+    } else if (required_bits <= 32) {
+      _attribute_vector = std::make_shared<FittedAttributeVector<uint32_t>>(values_vector.size());
     }
 
-    for (size_t i = 0; i < _dictionary->size(); i++) {
-      std::cout << _dictionary->at(i) << std::endl;
+    for (size_t value = 0; value < values_vector.size(); ++value) {
+      _attribute_vector->set(value, this->lower_bound(values_vector[value]));
     }
-    for (size_t i = 0; i < _attribute_vector->size(); i++) {
-      std::cout << _attribute_vector->at(i) << std::endl;
-    }
+
+    // TODO delete following
+
+    // for (size_t i = 0; i < _dictionary->size(); i++) {
+    //   std::cout << _dictionary->at(i) << std::endl;
+    // }
+    // std::cout << _attribute_vector->size();
+    // for (size_t i = 0; i < _attribute_vector->size(); i++) {
+    //   std::cout << _attribute_vector->get(i) << std::endl;
+    // }
   };
 
   // SEMINAR INFORMATION: Since most of these methods depend on the template parameter, you will have to implement
@@ -63,7 +73,7 @@ class DictionaryColumn : public BaseColumn {
   };
 
   // return the value at a certain position.
-  const T get(const size_t i) { return _dictionary->at(_attribute_vector->at(i)); }
+  const T get(const size_t i) { return 1; }
 
   // dictionary columns are immutable
   void append(const AllTypeVariant&) override { throw std::runtime_error("Dictionary columns are immutable."); }
@@ -111,7 +121,7 @@ class DictionaryColumn : public BaseColumn {
 
  protected:
   std::shared_ptr<std::vector<T>> _dictionary;
-  std::shared_ptr<std::vector<uint64_t>> _attribute_vector;
+  std::shared_ptr<BaseAttributeVector> _attribute_vector;
 };
 
 }  // namespace opossum
