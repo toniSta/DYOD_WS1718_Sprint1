@@ -4,6 +4,8 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <algorithm>
+#include <cmath>
 
 #include "all_type_variant.hpp"
 #include "types.hpp"
@@ -34,11 +36,21 @@ class DictionaryColumn : public BaseColumn {
     }
 
     _dictionary = std::make_shared<std::vector<T>>(values_vector);
+    _attribute_vector = std::make_shared<std::vector<uint64_t>>();
+
+    // sort and make unique
     std::sort(_dictionary->begin(), _dictionary->end());
     _dictionary->erase(std::unique(_dictionary->begin(), _dictionary->end()), _dictionary->end()); 
 
+    for (const auto& value : values_vector) {
+      _attribute_vector->push_back(this->lower_bound(value));
+    }
+
     for (size_t i = 0; i < _dictionary->size(); i++) {
       std::cout << _dictionary->at(i) << std::endl;
+    }
+    for (size_t i = 0; i < _attribute_vector->size(); i++) {
+      std::cout << _attribute_vector->at(i) << std::endl;
     }
   };
 
@@ -54,7 +66,7 @@ class DictionaryColumn : public BaseColumn {
   const T get(const size_t i) { return _dictionary->at(_attribute_vector->at(i)); }
 
   // dictionary columns are immutable
-  void append(const AllTypeVariant&) override {throw std::runtime_error("dictionary columns are immutable."); }
+  void append(const AllTypeVariant&) override { throw std::runtime_error("Dictionary columns are immutable."); }
 
   // returns an underlying dictionary
   std::shared_ptr<const std::vector<T>> dictionary() { return _dictionary; }
@@ -63,7 +75,7 @@ class DictionaryColumn : public BaseColumn {
   std::shared_ptr<const BaseAttributeVector> attribute_vector() { return _attribute_vector; }
 
   // return the value represented by a given ValueID
-  const T& value_by_value_id(ValueID value_id) { return _dictionary->get(value_id); }
+  const T& value_by_value_id(ValueID value_id) { return _dictionary->at(value_id); }
 
   // returns the first value ID that refers to a value >= the search value
   // returns INVALID_VALUE_ID if all values are smaller than the search value
