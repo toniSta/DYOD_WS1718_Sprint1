@@ -27,9 +27,19 @@ class DictionaryColumn : public BaseColumn {
    */
   explicit DictionaryColumn(const std::shared_ptr<BaseColumn>& base_column) {
     const auto value_column = std::dynamic_pointer_cast<ValueColumn<T>>(base_column);
-    std::cout << (*value_column)[0] << std::endl;
 
-    return;
+    std::vector<T> values_vector;
+    for (size_t value = 0; value < value_column->size(); ++value) {
+      values_vector.push_back(type_cast<T>((*value_column)[value]));
+    }
+
+    _dictionary = std::make_shared<std::vector<T>>(values_vector);
+    std::sort(_dictionary->begin(), _dictionary->end());
+    _dictionary->erase(std::unique(_dictionary->begin(), _dictionary->end()), _dictionary->end()); 
+
+    for (size_t i = 0; i < _dictionary->size(); i++) {
+      std::cout << _dictionary->at(i) << std::endl;
+    }
   };
 
   // SEMINAR INFORMATION: Since most of these methods depend on the template parameter, you will have to implement

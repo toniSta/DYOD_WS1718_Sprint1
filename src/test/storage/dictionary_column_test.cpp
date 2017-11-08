@@ -23,10 +23,10 @@ TEST_F(StorageDictionaryColumnTest, CompressColumnString) {
   vc_str->append("Bill");
 
   auto col = opossum::make_shared_by_column_type<opossum::BaseColumn, opossum::DictionaryColumn>("string", vc_str);
-//   auto dict_col = std::dynamic_pointer_cast<opossum::DictionaryColumn<std::string>>(col);
+  auto dict_col = std::dynamic_pointer_cast<opossum::DictionaryColumn<std::string>>(col);
 
-//   // Test attribute_vector size
-//   EXPECT_EQ(dict_col->size(), 6u);
+  // Test attribute_vector size
+  // EXPECT_EQ(dict_col->size(), 6u);
 
 //   // Test dictionary size (uniqueness)
 //   EXPECT_EQ(dict_col->unique_values_count(), 4u);
