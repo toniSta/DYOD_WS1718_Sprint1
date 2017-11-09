@@ -45,7 +45,7 @@ void Table::append(std::vector<AllTypeVariant> values) {
 
 void Table::create_new_chunk() {
   Chunk chunk;
-  for (auto&& type : _column_types_vector) {
+  for (const auto& type : _column_types_vector) {
     chunk.add_column(make_shared_by_column_type<BaseColumn, ValueColumn>(type));
   }
   _table_chunks.push_back(std::move(chunk));
