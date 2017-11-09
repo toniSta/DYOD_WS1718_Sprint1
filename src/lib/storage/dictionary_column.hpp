@@ -28,42 +28,7 @@ class DictionaryColumn : public BaseColumn {
   /**
    * Creates a Dictionary column from a given value column.
    */
-  explicit DictionaryColumn(const std::shared_ptr<BaseColumn>& base_column) {
-    const auto value_column = std::dynamic_pointer_cast<ValueColumn<T>>(base_column);
-    const auto& values = value_column->values();
-
-    _dictionary = std::make_shared<std::vector<T>>(values);
-
-    // sort and make unique
-    std::sort(_dictionary->begin(), _dictionary->end());
-    _dictionary->erase(std::unique(_dictionary->begin(), _dictionary->end()), _dictionary->end());
-
-    const uint8_t required_bits = std::ceil(std::log2(this->unique_values_count()));
-    if (required_bits <= 8) {
-      _attribute_vector = std::make_shared<FittedAttributeVector<uint8_t>>(value_column->size());
-    } else if (required_bits <= 16) {
-      _attribute_vector = std::make_shared<FittedAttributeVector<uint16_t>>(value_column->size());
-    } else if (required_bits <= 32) {
-      _attribute_vector = std::make_shared<FittedAttributeVector<uint32_t>>(value_column->size());
-    }
-
-    for (size_t value = 0; value < values.size(); ++value) {
-      _attribute_vector->set(value, this->lower_bound(values.at(value)));
-    }
-
-    // TODO(marcel) delete following
-
-    // for (size_t i = 0; i < _dictionary->size(); i++) {
-    //   std::cout << _dictionary->at(i) << std::endl;
-    // }
-    // std::cout << _attribute_vector->size();
-    // for (size_t i = 0; i < _attribute_vector->size(); i++) {
-    //   std::cout << _attribute_vector->get(i) << std::endl;
-    // }
-  }
-
-  // SEMINAR INFORMATION: Since most of these methods depend on the template parameter, you will have to implement
-  // the DictionaryColumn in this file. Replace the method signatures with actual implementations.
+  explicit DictionaryColumn(const std::shared_ptr<BaseColumn>& base_column) { this->_compress(base_column); }
 
   // return the value at a certain position. If you want to write efficient operators, back off!
   const AllTypeVariant operator[](const size_t i) const override { return 42; }
@@ -118,6 +83,33 @@ class DictionaryColumn : public BaseColumn {
  protected:
   std::shared_ptr<std::vector<T>> _dictionary;
   std::shared_ptr<BaseAttributeVector> _attribute_vector;
+
+  void _compress(const std::shared_ptr<BaseColumn>& base_column) {
+    const auto value_column = std::dynamic_pointer_cast<ValueColumn<T>>(base_column);
+    const auto& values = value_column->values();
+
+    _dictionary = std::make_shared<std::vector<T>>(values);
+
+    // sort and make unique
+    std::sort(_dictionary->begin(), _dictionary->end());
+    _dictionary->erase(std::unique(_dictionary->begin(), _dictionary->end()), _dictionary->end());
+
+    this->_create_attribute_vector(value_column->size());
+    for (size_t value = 0; value < values.size(); ++value) {
+      _attribute_vector->set(value, this->lower_bound(values.at(value)));
+    }
+  }
+
+  void _create_attribute_vector(const size_t column_size) {
+    const uint8_t required_bits = std::ceil(std::log2(this->unique_values_count()));
+    if (required_bits <= 8) {
+      _attribute_vector = std::make_shared<FittedAttributeVector<uint8_t>>(column_size);
+    } else if (required_bits <= 16) {
+      _attribute_vector = std::make_shared<FittedAttributeVector<uint16_t>>(column_size);
+    } else if (required_bits <= 32) {
+      _attribute_vector = std::make_shared<FittedAttributeVector<uint32_t>>(column_size);
+    }
+  }
 };
 
 }  // namespace opossum
