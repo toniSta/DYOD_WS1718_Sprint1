@@ -31,10 +31,10 @@ class DictionaryColumn : public BaseColumn {
   explicit DictionaryColumn(const std::shared_ptr<BaseColumn>& base_column) { this->_compress(base_column); }
 
   // return the value at a certain position. If you want to write efficient operators, back off!
-  const AllTypeVariant operator[](const size_t i) const override { return 42; }
+  const AllTypeVariant operator[](const size_t i) const override { return _dictionary->at(_attribute_vector->get(i)); }
 
   // return the value at a certain position.
-  const T get(const size_t i) { return 1; }
+  const T get(const size_t i) { return _dictionary.get()[_attribute_vector->get(i)]; }
 
   // dictionary columns are immutable
   void append(const AllTypeVariant&) override { throw std::runtime_error("Dictionary columns are immutable."); }
