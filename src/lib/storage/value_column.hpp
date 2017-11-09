@@ -25,7 +25,7 @@ class ValueColumn : public BaseColumn {
   // Return all values. This is the preferred method to check a value at a certain index. Usually you need to
   // access more than a single value anyway.
   // e.g. auto& values = col.values(); and then: values.at(i); in your loop.
-  const std::vector<T>& values() const { return _column_values; }
+  const std::vector<T>& values() const;
 
  protected:
   std::vector<T> _column_values;
