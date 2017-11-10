@@ -14,18 +14,16 @@ class FittedAttributeVector : public BaseAttributeVector {
 
   ~FittedAttributeVector() override{};
 
-  ValueID get(const size_t i) const override { return ValueID(_attribute_vector.at(i)); }
+  ValueID get(const size_t i) const override;
 
   // inserts the value_id at a given position
-  void set(const size_t i, const ValueID value_id) override {
-    _attribute_vector.insert(_attribute_vector.begin() + i, value_id);
-  };
+  void set(const size_t i, const ValueID value_id) override;
 
   // returns the number of values
-  size_t size() const override { return _attribute_vector.size(); }
+  size_t size() const override;
 
   // returns the width of the values in bytes
-  AttributeVectorWidth width() const override { return sizeof(T); }
+  AttributeVectorWidth width() const override;
 
  protected:
   std::vector<T> _attribute_vector;
