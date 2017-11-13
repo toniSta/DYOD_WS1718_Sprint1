@@ -11,6 +11,7 @@
 #include "fitted_attribute_vector.hpp"
 #include "type_cast.hpp"
 #include "types.hpp"
+#include "value_column.hpp"
 
 namespace opossum {
 
@@ -34,7 +35,7 @@ class DictionaryColumn : public BaseColumn {
   const AllTypeVariant operator[](const size_t i) const override { return _dictionary->at(_attribute_vector->get(i)); }
 
   // return the value at a certain position.
-  const T get(const size_t i) { return _dictionary.get()[_attribute_vector->get(i)]; }
+  const T get(const size_t i) { return (*_dictionary)[_attribute_vector->get(i)]; }
 
   // dictionary columns are immutable
   void append(const AllTypeVariant&) override { throw std::runtime_error("Dictionary columns are immutable."); }

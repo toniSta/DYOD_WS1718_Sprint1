@@ -9,13 +9,11 @@
 #include <utility>
 #include <vector>
 
-#include "value_column.hpp"
-
-#include "base_column.hpp"
 #include "dictionary_column.hpp"
 #include "resolve_type.hpp"
 #include "types.hpp"
 #include "utils/assert.hpp"
+#include "value_column.hpp"
 
 namespace opossum {
 
@@ -87,17 +85,17 @@ Chunk& Table::get_chunk(ChunkID chunk_id) { return _table_chunks.at(chunk_id); }
 const Chunk& Table::get_chunk(ChunkID chunk_id) const { return _table_chunks.at(chunk_id); }
 
 void Table::compress_chunk(ChunkID chunk_id) {
-  Chunk compressedChunk;
+  Chunk compressed_chunk;
+  Chunk& old_chunk = _table_chunks.at(chunk_id);
 
-  for (int i = 0; i < _table_chunks.at(chunk_id).col_count(); i++) {
-    auto col = make_shared_by_column_type<BaseColumn, DictionaryColumn>(
-        column_type(ColumnID(i)), _table_chunks.at(chunk_id).get_column(ColumnID(i)));
-    auto dict_col = std::dynamic_pointer_cast<DictionaryColumn<std::string>>(col);
+  for (int i = 0; i < old_chunk.col_count(); i++) {
+    auto col = make_shared_by_column_type<BaseColumn, DictionaryColumn>(column_type(ColumnID(i)),
+                                                                        old_chunk.get_column(ColumnID(i)));
 
-    compressedChunk.add_column(dict_col);
+    compressed_chunk.add_column(col);
   }
 
-  _table_chunks[chunk_id] = std::move(compressedChunk);
+  _table_chunks[chunk_id] = std::move(compressed_chunk);
 }
 
 }  // namespace opossum
