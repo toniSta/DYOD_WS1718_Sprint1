@@ -12,11 +12,10 @@ class FittedAttributeVector : public BaseAttributeVector {
  public:
   explicit FittedAttributeVector(uint32_t attribute_vector_size) { _attribute_vector.reserve(attribute_vector_size); }
 
-  ~FittedAttributeVector() override{};
-
+  // returns ValueID from attribute vector for a certain position
   ValueID get(const size_t i) const override;
 
-  // inserts the value_id at a given position
+  // inserts a value_id at a given position
   void set(const size_t i, const ValueID value_id) override;
 
   // returns the number of values
