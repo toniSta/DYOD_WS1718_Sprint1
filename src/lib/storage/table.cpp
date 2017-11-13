@@ -56,7 +56,11 @@ void Table::create_new_chunk() {
 uint16_t Table::col_count() const { return _table_chunks.front().col_count(); }
 
 uint64_t Table::row_count() const {
-  return (_table_chunks.size() - 1) * this->chunk_size() + _table_chunks.back().size();
+  uint64_t rows = 0;
+  for (const auto& chunk : _table_chunks) {
+    rows += chunk.size();
+  }
+  return rows;
 }
 
 ChunkID Table::chunk_count() const { return ChunkID(_table_chunks.size()); }
