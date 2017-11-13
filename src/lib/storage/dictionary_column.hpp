@@ -52,7 +52,7 @@ class DictionaryColumn : public BaseColumn {
   // returns the first value ID that refers to a value >= the search value
   // returns INVALID_VALUE_ID if all values are smaller than the search value
   ValueID lower_bound(T value) {
-    auto dict_iterator = std::lower_bound(_dictionary->cbegin(), _dictionary->cend(), value);
+    const auto dict_iterator = std::lower_bound(_dictionary->cbegin(), _dictionary->cend(), value);
     if (dict_iterator == _dictionary->cend())
       return INVALID_VALUE_ID;
     else
@@ -65,7 +65,7 @@ class DictionaryColumn : public BaseColumn {
   // returns the first value ID that refers to a value > the search value
   // returns INVALID_VALUE_ID if all values are smaller than or equal to the search value
   ValueID upper_bound(T value) {
-    auto dict_iterator = std::upper_bound(_dictionary->cbegin(), _dictionary->cend(), value);
+    const auto dict_iterator = std::upper_bound(_dictionary->cbegin(), _dictionary->cend(), value);
     if (dict_iterator == _dictionary->cend())
       return INVALID_VALUE_ID;
     else

@@ -14,7 +14,7 @@ ValueID FittedAttributeVector<T>::get(const size_t i) const {
 
 template <typename T>
 void FittedAttributeVector<T>::set(const size_t i, const ValueID value_id) {
-  _attribute_vector.insert(_attribute_vector.begin() + i, value_id);
+  _attribute_vector.insert(_attribute_vector.cbegin() + i, value_id);
 }
 
 template <typename T>
