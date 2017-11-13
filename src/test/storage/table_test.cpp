@@ -83,4 +83,18 @@ TEST_F(StorageTableTest, CompressChunk) {
   EXPECT_EQ(dict->get(0), 4);
 }
 
+TEST_F(StorageTableTest, NoDuplicateTableNames) { EXPECT_THROW(t.add_column("col_1", "int"), std::exception); }
+
+TEST_F(StorageTableTest, AddColumnsToEmptyTablesOnly) {
+  t.add_column("col_3", "int");
+  t.append({4, "Hello,", 1});
+  t.append({6, "world", 2});
+  EXPECT_THROW(t.add_column("col_4", "int"), std::exception);
+}
+
+TEST_F(StorageTableTest, ColumnNames) {
+  std::vector<std::string> column_names = {"col_1", "col_2"};
+  EXPECT_EQ(t.column_names(), column_names);
+}
+
 }  // namespace opossum

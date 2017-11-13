@@ -37,6 +37,8 @@ TEST_F(StorageDictionaryColumnTest, CompressColumnString) {
   EXPECT_EQ((*dict)[1], "Bill");
   EXPECT_EQ((*dict)[2], "Hasso");
   EXPECT_EQ((*dict)[3], "Steve");
+
+  EXPECT_THROW(dict_col->append("Peter"), std::exception);
 }
 
 TEST_F(StorageDictionaryColumnTest, LowerUpperBound) {

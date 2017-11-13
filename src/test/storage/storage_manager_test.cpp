@@ -1,4 +1,6 @@
 #include <memory>
+#include <string>
+#include <vector>
 
 #include "../base_test.hpp"
 #include "gtest/gtest.h"
@@ -48,6 +50,12 @@ TEST_F(StorageStorageManagerTest, DoesNotHaveTable) {
 TEST_F(StorageStorageManagerTest, HasTable) {
   auto& sm = StorageManager::get();
   EXPECT_EQ(sm.has_table("first_table"), true);
+}
+
+TEST_F(StorageStorageManagerTest, TableNames) {
+  auto& sm = StorageManager::get();
+  std::vector<std::string> tables = {"first_table", "second_table"};
+  EXPECT_EQ(sm.table_names(), tables);
 }
 
 }  // namespace opossum
