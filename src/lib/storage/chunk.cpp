@@ -20,7 +20,7 @@ void Chunk::append(const std::vector<AllTypeVariant>& values) {
   DebugAssert(values.size() == this->col_count(), "Wrong number of values.");
 
   for (auto column = ColumnID(0); column < this->col_count(); column++) {
-    this->get_column(ColumnID(column))->append(values[column]);
+    this->get_column(column)->append(values[column]);
   }
 }
 

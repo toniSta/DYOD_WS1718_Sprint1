@@ -20,7 +20,7 @@ namespace opossum {
 Table::Table(const uint32_t chunk_size) : _max_chunk_size(chunk_size) { this->create_new_chunk(); }
 
 void Table::add_column_definition(const std::string& name, const std::string& type) {
-  if (std::find(_column_names_vector.begin(), _column_names_vector.end(), name) != _column_names_vector.end()) {
+  if (std::find(_column_names_vector.cbegin(), _column_names_vector.cend(), name) != _column_names_vector.cend()) {
     throw std::runtime_error("Column name already exists.");
   }
   _column_names_vector.push_back(name);
@@ -64,9 +64,9 @@ uint64_t Table::row_count() const {
 ChunkID Table::chunk_count() const { return ChunkID(_table_chunks.size()); }
 
 ColumnID Table::column_id_by_name(const std::string& column_name) const {
-  auto search = std::find(_column_names_vector.begin(), _column_names_vector.end(), column_name);
-  if (search != _column_names_vector.end()) {
-    return ColumnID(std::distance(_column_names_vector.begin(), search));
+  const auto search = std::find(_column_names_vector.cbegin(), _column_names_vector.cend(), column_name);
+  if (search != _column_names_vector.cend()) {
+    return ColumnID(std::distance(_column_names_vector.cbegin(), search));
   } else {
     throw std::runtime_error("Column name not found.");
   }
@@ -89,12 +89,10 @@ void Table::compress_chunk(ChunkID chunk_id) {
   Chunk& old_chunk = _table_chunks.at(chunk_id);
 
   for (int i = 0; i < old_chunk.col_count(); i++) {
-    auto col = make_shared_by_column_type<BaseColumn, DictionaryColumn>(column_type(ColumnID(i)),
-                                                                        old_chunk.get_column(ColumnID(i)));
-
+    const auto col = make_shared_by_column_type<BaseColumn, DictionaryColumn>(column_type(ColumnID(i)),
+                                                                              old_chunk.get_column(ColumnID(i)));
     compressed_chunk.add_column(col);
   }
-
   _table_chunks[chunk_id] = std::move(compressed_chunk);
 }
 
