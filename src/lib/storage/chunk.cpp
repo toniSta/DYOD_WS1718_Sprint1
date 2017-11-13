@@ -30,6 +30,4 @@ uint16_t Chunk::col_count() const { return _chunk_columns.size(); }
 
 uint32_t Chunk::size() const { return _chunk_columns.empty() ? 0 : this->get_column(ColumnID(0))->size(); }
 
-void Chunk::compress() {}
-
 }  // namespace opossum

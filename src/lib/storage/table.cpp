@@ -11,6 +11,8 @@
 
 #include "value_column.hpp"
 
+#include "base_column.hpp"
+#include "dictionary_column.hpp"
 #include "resolve_type.hpp"
 #include "types.hpp"
 #include "utils/assert.hpp"
@@ -80,6 +82,18 @@ Chunk& Table::get_chunk(ChunkID chunk_id) { return _table_chunks.at(chunk_id); }
 
 const Chunk& Table::get_chunk(ChunkID chunk_id) const { return _table_chunks.at(chunk_id); }
 
-void Table::compress_chunk(ChunkID chunk_id) { _table_chunks.at(chunk_id).compress(); }
+void Table::compress_chunk(ChunkID chunk_id) {
+  Chunk compressedChunk;
+
+  for (int i = 0; i < _table_chunks.at(chunk_id).col_count(); i++) {
+    auto col = make_shared_by_column_type<BaseColumn, DictionaryColumn>(
+        column_type(ColumnID(i)), _table_chunks.at(chunk_id).get_column(ColumnID(i)));
+    auto dict_col = std::dynamic_pointer_cast<DictionaryColumn<std::string>>(col);
+
+    compressedChunk.add_column(dict_col);
+  }
+
+  _table_chunks[chunk_id] = std::move(compressedChunk);
+}
 
 }  // namespace opossum
