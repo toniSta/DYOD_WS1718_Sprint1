@@ -73,3 +73,13 @@ TEST_F(StorageDictionaryColumnTest, LargeFittedAttributeVector) {
   EXPECT_EQ(dict_col->get(1), 1);
   EXPECT_EQ(dict_col->attribute_vector()->width(), 2);
 }
+
+TEST_F(StorageDictionaryColumnTest, Large32BitFittedAttributeVector) {
+  for (int i = 0; i <= 70000; i += 1) vc_int->append(i);
+  auto col = opossum::make_shared_by_column_type<opossum::BaseColumn, opossum::DictionaryColumn>("int", vc_int);
+  auto dict_col = std::dynamic_pointer_cast<opossum::DictionaryColumn<int>>(col);
+
+  EXPECT_EQ(dict_col->value_by_value_id((opossum::ValueID)1), 1);
+  EXPECT_EQ(dict_col->get(1), 1);
+  EXPECT_EQ(dict_col->attribute_vector()->width(), 4);
+}
