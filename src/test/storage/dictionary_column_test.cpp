@@ -56,4 +56,20 @@ TEST_F(StorageDictionaryColumnTest, LowerUpperBound) {
   EXPECT_EQ(dict_col->upper_bound(15), opossum::INVALID_VALUE_ID);
 }
 
-// TODO(student): You should add some more tests here (full coverage would be appreciated) and possibly in other files.
+TEST_F(StorageDictionaryColumnTest, FittedAttributeVector) {
+  for (int i = 0; i <= 10; i += 1) vc_int->append(i);
+  auto col = opossum::make_shared_by_column_type<opossum::BaseColumn, opossum::DictionaryColumn>("int", vc_int);
+  auto dict_col = std::dynamic_pointer_cast<opossum::DictionaryColumn<int>>(col);
+
+  EXPECT_EQ(dict_col->attribute_vector()->width(), 1);
+}
+
+TEST_F(StorageDictionaryColumnTest, LargeFittedAttributeVector) {
+  for (int i = 0; i <= 260; i += 1) vc_int->append(i);
+  auto col = opossum::make_shared_by_column_type<opossum::BaseColumn, opossum::DictionaryColumn>("int", vc_int);
+  auto dict_col = std::dynamic_pointer_cast<opossum::DictionaryColumn<int>>(col);
+
+  EXPECT_EQ(dict_col->value_by_value_id((opossum::ValueID)1), 1);
+  EXPECT_EQ(dict_col->get(1), 1);
+  EXPECT_EQ(dict_col->attribute_vector()->width(), 2);
+}
