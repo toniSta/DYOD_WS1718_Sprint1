@@ -58,4 +58,11 @@ TEST_F(StorageStorageManagerTest, TableNames) {
   EXPECT_EQ(sm.table_names(), tables);
 }
 
+TEST_F(StorageStorageManagerTest, Print) {
+  auto& sm = StorageManager::get();
+  std::stringstream sstream;
+  sm.print(sstream);
+  EXPECT_NE(sstream.str().find("Chunks: 1"), std::string::npos);
+}
+
 }  // namespace opossum
