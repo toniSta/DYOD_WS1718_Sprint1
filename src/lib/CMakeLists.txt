@@ -3,11 +3,20 @@ set(
     SOURCES
     all_type_variant.hpp
     resolve_type.hpp
+    operators/abstract_operator.cpp
+    operators/abstract_operator.hpp
+    operators/get_table.hpp
+    operators/print.cpp
+    operators/print.hpp
+    operators/table_scan.hpp
+    operators/table_wrapper.cpp
+    operators/table_wrapper.hpp
     storage/base_attribute_vector.hpp
     storage/base_column.hpp
     storage/chunk.cpp
     storage/chunk.hpp
     storage/dictionary_column.hpp
+    storage/reference_column.hpp
     storage/storage_manager.cpp
     storage/storage_manager.hpp
     storage/table.cpp
@@ -18,6 +27,8 @@ set(
     type_cast.hpp
     types.hpp
     utils/assert.hpp
+    utils/load_table.cpp
+    utils/load_table.hpp
 )
 
 set(
