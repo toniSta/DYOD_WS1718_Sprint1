@@ -27,6 +27,7 @@ namespace opossum {
 //     _test_table->append({123, 456.7f});
 //     _test_table->append({1234, 457.7f});
 //     _test_table->append({12345, 458.7f});
+//     _test_table->append({54321, 458.7f});
 //     _test_table->append({12345, 458.7f});
 
 //     _test_table_dict = std::make_shared<opossum::Table>(5);
