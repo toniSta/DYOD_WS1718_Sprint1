@@ -90,7 +90,7 @@ void Table::compress_chunk(ChunkID chunk_id) {
 
   for (auto column_id = ColumnID(0); column_id < old_chunk.col_count(); column_id++) {
     const auto col = make_shared_by_column_type<BaseColumn, DictionaryColumn>(
-        column_type(ColumnID(column_id)), old_chunk.get_column(ColumnID(column_id)));
+        column_type(column_id), old_chunk.get_column(column_id));
     compressed_chunk.add_column(col);
   }
   _table_chunks[chunk_id] = std::move(compressed_chunk);
