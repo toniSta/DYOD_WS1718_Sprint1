@@ -86,11 +86,11 @@ const Chunk& Table::get_chunk(ChunkID chunk_id) const { return _table_chunks.at(
 
 void Table::compress_chunk(ChunkID chunk_id) {
   Chunk compressed_chunk;
-  Chunk& old_chunk = _table_chunks.at(chunk_id);
+  const Chunk& old_chunk = get_chunk(chunk_id);
 
-  for (int i = 0; i < old_chunk.col_count(); i++) {
-    const auto col = make_shared_by_column_type<BaseColumn, DictionaryColumn>(column_type(ColumnID(i)),
-                                                                              old_chunk.get_column(ColumnID(i)));
+  for (auto column_id = ColumnID(0); column_id < old_chunk.col_count(); column_id++) {
+    const auto col = make_shared_by_column_type<BaseColumn, DictionaryColumn>(
+        column_type(ColumnID(column_id)), old_chunk.get_column(ColumnID(column_id)));
     compressed_chunk.add_column(col);
   }
   _table_chunks[chunk_id] = std::move(compressed_chunk);
