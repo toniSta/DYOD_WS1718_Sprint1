@@ -10,7 +10,9 @@ namespace opossum {
 template <typename T>
 class FittedAttributeVector : public BaseAttributeVector {
  public:
-  explicit FittedAttributeVector(uint32_t attribute_vector_size) { _attribute_vector.reserve(attribute_vector_size); }
+  explicit FittedAttributeVector(uint32_t attribute_vector_size) : _attribute_vector(attribute_vector_size) {
+    _attribute_vector.reserve(attribute_vector_size);
+  }
 
   // returns ValueID from attribute vector for a certain position
   ValueID get(const size_t i) const override;

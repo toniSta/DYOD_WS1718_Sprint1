@@ -29,10 +29,10 @@ class DictionaryColumn : public BaseColumn {
   /**
    * Creates a Dictionary column from a given value column.
    */
-  explicit DictionaryColumn(const std::shared_ptr<BaseColumn>& base_column) { this->_compress(base_column); }
+  explicit DictionaryColumn(const std::shared_ptr<BaseColumn>& base_column) { _compress(base_column); }
 
   // return the value at a certain position. If you want to write efficient operators, back off!
-  const AllTypeVariant operator[](const size_t i) const override { return _dictionary->at(_attribute_vector->get(i)); }
+  const AllTypeVariant operator[](const size_t i) const override { return (*_dictionary)[_attribute_vector->get(i)]; }
 
   // return the value at a certain position.
   const T get(const size_t i) { return (*_dictionary)[_attribute_vector->get(i)]; }
@@ -95,14 +95,14 @@ class DictionaryColumn : public BaseColumn {
     std::sort(_dictionary->begin(), _dictionary->end());
     _dictionary->erase(std::unique(_dictionary->begin(), _dictionary->end()), _dictionary->end());
 
-    this->_create_attribute_vector(value_column->size());
+    _create_attribute_vector(value_column->size());
     for (size_t value = 0; value < values.size(); ++value) {
-      _attribute_vector->set(value, this->lower_bound(values.at(value)));
+      _attribute_vector->set(value, lower_bound(values.at(value)));
     }
   }
 
   void _create_attribute_vector(const size_t column_size) {
-    const uint8_t required_bits = std::ceil(std::log2(this->unique_values_count()));
+    const uint8_t required_bits = std::ceil(std::log2(unique_values_count()));
     if (required_bits <= 8) {
       _attribute_vector = std::make_shared<FittedAttributeVector<uint8_t>>(column_size);
     } else if (required_bits <= 16) {
