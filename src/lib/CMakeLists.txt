@@ -10,6 +10,9 @@ set(
     operators/print.cpp
     operators/print.hpp
     operators/table_scan.hpp
+    operators/table_scan.cpp
+    operators/table_scan_impl.hpp
+    operators/table_scan_impl.cpp
     operators/table_wrapper.cpp
     operators/table_wrapper.hpp
     storage/base_attribute_vector.hpp

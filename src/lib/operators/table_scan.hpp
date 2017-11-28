@@ -7,12 +7,12 @@
 
 #include "abstract_operator.hpp"
 #include "all_type_variant.hpp"
+#include "table_scan_impl.hpp"
 #include "types.hpp"
 #include "utils/assert.hpp"
 
 namespace opossum {
 
-class BaseTableScanImpl;
 class Table;
 
 class TableScan : public AbstractOperator {
@@ -28,6 +28,12 @@ class TableScan : public AbstractOperator {
 
  protected:
   std::shared_ptr<const Table> _on_execute() override;
+  std::shared_ptr<TableScanImpl> _impl;
+
+  const std::shared_ptr<const AbstractOperator> _in;
+  ColumnID _column_id;
+  const ScanType _scan_type;
+  const AllTypeVariant _search_value;
 };
 
 }  // namespace opossum
