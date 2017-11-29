@@ -1,12 +1,12 @@
 #include "table_scan.hpp"
 
 #include <memory>
-#include <resolve_type.hpp>
 #include <string>
 #include <vector>
 
 #include "abstract_operator.hpp"
 #include "all_type_variant.hpp"
+#include "resolve_type.hpp"
 #include "storage/table.hpp"
 #include "types.hpp"
 #include "utils/assert.hpp"
