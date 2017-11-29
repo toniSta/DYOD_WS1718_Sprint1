@@ -5,17 +5,24 @@
 #include <string>
 #include <vector>
 
-#include "abstract_operator.hpp"
-#include "all_type_variant.hpp"
+#include "resolve_type.hpp"
+#include "storage/table.hpp"
+
+#include "table_scan.hpp"
 #include "types.hpp"
-#include "utils/assert.hpp"
 
 namespace opossum {
 
-TableScanImpl::TableScanImpl() {}
+//template <typename T>
+//TableScanImpl::TableScanImpl(const TableScan& table_scan)
+//  : BaseTableScanImpl{table_scan},
+//    _search_value{type_cast<T>(table_scan.search_value())},
+//    _scan_type{table_scan.scan_type()} {}
 
-//  const std::shared_ptr<const PosList> TableScanImpl::on_execute() {
-//    return ;
-//  }
+//template <typename T>
+//const std::shared_ptr<const Table> TableScanImpl<T>::execute() {
+//  //  return _in->get_output();
+//  return nullptr;
+//}
 
 }  // namespace opossum
