@@ -57,7 +57,6 @@ class TableScanImpl : public BaseTableScanImpl {
     auto pos_list = std::make_shared<PosList>(std::initializer_list<RowID>({}));
     Chunk chunk;
 
-    std::cout << _in->get_output()->chunk_count() << std::endl;
     for (auto chunk_id = ChunkID{0}; chunk_id < _in->get_output()->chunk_count(); chunk_id++) {
       const auto base_column = _in->get_output()->get_chunk(chunk_id).get_column(_column_id);
 
