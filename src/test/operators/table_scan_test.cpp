@@ -2,7 +2,7 @@
 #include <iostream>
 #include <map>
 #include <memory>
-#include <optional>
+// #include <optional>
 #include <string>
 #include <utility>
 #include <vector>
@@ -107,10 +107,10 @@ TEST_F(OperatorsTableScanTest, DoubleScan) {
   auto scan_1 = std::make_shared<TableScan>(_table_wrapper, ColumnID{0}, ScanType::OpGreaterThanEquals, 1234);
   scan_1->execute();
 
-  //   auto scan_2 = std::make_shared<TableScan>(scan_1, ColumnID{1}, ScanType::OpLessThan, 457.9);
-  //   scan_2->execute();
+  auto scan_2 = std::make_shared<TableScan>(scan_1, ColumnID{1}, ScanType::OpLessThan, 457.9);
+  scan_2->execute();
 
-  //   EXPECT_TABLE_EQ(scan_2->get_output(), expected_result);
+  EXPECT_TABLE_EQ(scan_2->get_output(), expected_result);
 }
 
 // TEST_F(OperatorsTableScanTest, EmptyResultScan) {

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include <optional>
+// #include <optional>
 #include <string>
 #include <vector>
 
@@ -35,7 +35,7 @@ class TableScan : public AbstractOperator {
   std::shared_ptr<BaseTableScanImpl> _impl;
 
   const std::shared_ptr<const AbstractOperator> _in;
-  ColumnID _column_id;
+  const ColumnID _column_id;
   const ScanType _scan_type;
   const AllTypeVariant _search_value;
 };

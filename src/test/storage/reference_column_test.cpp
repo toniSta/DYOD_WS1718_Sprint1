@@ -38,7 +38,13 @@ class ReferenceColumnTest : public ::testing::Test {
     _test_table_dict->compress_chunk(ChunkID(0));
     _test_table_dict->compress_chunk(ChunkID(1));
 
+    StorageManager::get().add_table("test_table", _test_table);
     StorageManager::get().add_table("test_table_dict", _test_table_dict);
+  }
+
+  virtual void TearDown() {
+    StorageManager::get().drop_table("test_table");
+    StorageManager::get().drop_table("test_table_dict");
   }
 
  public:

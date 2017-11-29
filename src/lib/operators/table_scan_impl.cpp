@@ -1,7 +1,6 @@
 #include "table_scan_impl.hpp"
 
 #include <memory>
-#include <optional>
 #include <string>
 #include <vector>
 
