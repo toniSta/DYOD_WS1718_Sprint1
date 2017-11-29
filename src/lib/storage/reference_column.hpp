@@ -37,7 +37,7 @@ class ReferenceColumn : public BaseColumn {
   const std::shared_ptr<const PosList> pos_list() const { return _pos; }
   const std::shared_ptr<const Table> referenced_table() const { return _referenced_table; }
 
-  ColumnID referenced_column_id() const;
+  ColumnID referenced_column_id() const { return _referenced_column_id; }
 
  protected:
   const std::shared_ptr<const Table> _referenced_table;
