@@ -97,7 +97,7 @@ void Table::compress_chunk(ChunkID chunk_id) {
 }
 
 void Table::emplace_chunk(Chunk chunk) {
-  _table_chunks.push_back(std::move(chunk));
+  _table_chunks.at(0) = std::move(chunk);
 }
 
 }  // namespace opossum

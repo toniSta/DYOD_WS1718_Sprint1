@@ -25,14 +25,14 @@ class BaseTableScanImpl {
  protected:
 };
 
-template <typename T>
+template<typename T>
 class TableScanImpl : public BaseTableScanImpl {
  public:
   explicit TableScanImpl(const std::shared_ptr<const AbstractOperator> in, ColumnID column_id, const ScanType scan_type,
                          const AllTypeVariant search_value)
-      : _in(in), _column_id(column_id), _scan_type(scan_type), _search_value(type_cast<T>(search_value)) {}
+    : _in(in), _column_id(column_id), _scan_type(scan_type), _search_value(type_cast<T>(search_value)) {}
 
-  bool compare(const T& lhs, const T& rhs) {
+  bool compare(const T &lhs, const T &rhs) {
     switch (_scan_type) {
       case ScanType::OpEquals:
         return lhs == rhs;
@@ -56,6 +56,7 @@ class TableScanImpl : public BaseTableScanImpl {
     auto pos_list = std::make_shared<PosList>(std::initializer_list<RowID>({}));
     Chunk chunk;
 
+    std::cout << _in->get_output()->chunk_count() << std::endl;
     for (auto chunk_id = ChunkID{0}; chunk_id < _in->get_output()->chunk_count(); chunk_id++) {
       const auto base_column = _in->get_output()->get_chunk(chunk_id).get_column(_column_id);
 
@@ -68,7 +69,9 @@ class TableScanImpl : public BaseTableScanImpl {
 
     for (auto column_id = ColumnID{0}; column_id < _in->get_output()->col_count(); column_id++) {
       chunk.add_column(std::make_shared<ReferenceColumn>(_in->get_output(), column_id, pos_list));
+      table->add_column_definition(_in->get_output()->column_name(column_id), _in->get_output()->column_type(column_id));
     }
+
     table->emplace_chunk(std::move(chunk));
 
     return table;
