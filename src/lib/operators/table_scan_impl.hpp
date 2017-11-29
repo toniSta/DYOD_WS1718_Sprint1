@@ -34,24 +34,18 @@ class TableScanImpl : public BaseTableScanImpl {
     switch (_scan_type) {
       case ScanType::OpEquals:
         return lhs == rhs;
-        break;
       case ScanType::OpNotEquals:
         return lhs != rhs;
-        break;
       case ScanType::OpLessThan:
         return lhs < rhs;
-        break;
       case ScanType::OpLessThanEquals:
         return lhs <= rhs;
-        break;
       case ScanType::OpGreaterThan:
         return lhs > rhs;
-        break;
       case ScanType::OpGreaterThanEquals:
         return lhs >= rhs;
-        break;
       default:
-        throw std::runtime_error("Operator not known");
+        throw std::runtime_error("Unknown Operator");
     }
   }
 
