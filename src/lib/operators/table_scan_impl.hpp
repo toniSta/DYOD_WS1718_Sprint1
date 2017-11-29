@@ -6,6 +6,8 @@
 
 #include "resolve_type.hpp"
 #include "storage/table.hpp"
+#include "storage/chunk.hpp"
+#include "storage/reference_column.hpp"
 
 #include "table_scan.hpp"
 #include "types.hpp"
@@ -52,18 +54,23 @@ class TableScanImpl : public BaseTableScanImpl {
   const std::shared_ptr<const Table> on_execute() override {
     auto table = std::make_shared<Table>(0);
     auto pos_list = std::make_shared<PosList>(std::initializer_list<RowID>({}));
+    Chunk chunk;
 
     for (auto chunk_id = ChunkID{0}; chunk_id < _in->get_output()->chunk_count(); chunk_id++) {
       const auto base_column = _in->get_output()->get_chunk(chunk_id).get_column(_column_id);
-      const auto value_column = std::dynamic_pointer_cast<ValueColumn<T>>(base_column);
 
-      for (auto row_id = ChunkOffset{0}; row_id < value_column->size(); row_id++) {
-        if (compare(value_column->values()[row_id], _search_value)) {
+      for (auto row_id = ChunkOffset{0}; row_id < base_column->size(); row_id++) {
+        if (compare(type_cast<T>((*base_column)[row_id]), _search_value)) {
           pos_list->push_back(RowID{ChunkID{chunk_id}, row_id});
-          table->append({(*value_column)[row_id]});
         }
       }
     }
+
+    for (auto column_id = ColumnID{0}; column_id < _in->get_output()->col_count(); column_id++) {
+      chunk.add_column(std::make_shared<ReferenceColumn>(_in->get_output(), column_id, pos_list));
+    }
+    table->emplace_chunk(std::move(chunk));
+
     return table;
   }
 
