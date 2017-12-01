@@ -26,6 +26,12 @@ TEST_F(OperatorsGetTableTest, GetOutput) {
   EXPECT_EQ(gt->get_output(), _test_table);
 }
 
+TEST_F(OperatorsGetTableTest, GetName) {
+  auto gt = std::make_shared<GetTable>("aNiceTestTable");
+
+  EXPECT_EQ(gt->table_name(), "aNiceTestTable");
+}
+
 TEST_F(OperatorsGetTableTest, ThrowsUnknownTableName) {
   auto gt = std::make_shared<GetTable>("anUglyTestTable");
 
