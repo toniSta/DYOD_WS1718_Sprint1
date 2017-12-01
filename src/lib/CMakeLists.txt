@@ -21,6 +21,7 @@ set(
     storage/dictionary_column.hpp
     storage/fitted_attribute_vector.cpp
     storage/fitted_attribute_vector.hpp
+    storage/reference_column.cpp
     storage/reference_column.hpp
     storage/storage_manager.cpp
     storage/storage_manager.hpp

@@ -13,10 +13,6 @@
 
 namespace opossum {
 
-class Table;
-
-class BaseTableScanImpl;
-
 class TableScan : public AbstractOperator {
  public:
   TableScan(const std::shared_ptr<const AbstractOperator> in, ColumnID column_id, const ScanType scan_type,

@@ -25,19 +25,17 @@ class ReferenceColumn : public BaseColumn {
                   const std::shared_ptr<const PosList> pos)
       : _referenced_table(referenced_table), _referenced_column_id(referenced_column_id), _pos(pos) {}
 
-  const AllTypeVariant operator[](const size_t i) const override {
-    const auto row_id = _pos->at(i);
-    return (*_referenced_table->get_chunk(row_id.chunk_id).get_column(_referenced_column_id))[row_id.chunk_offset];
-  };
+  const AllTypeVariant operator[](const size_t i) const override;
 
-  void append(const AllTypeVariant&) override { throw std::logic_error("ReferenceColumn is immutable"); }
+  void append(const AllTypeVariant&) override;
 
-  size_t size() const override { return _pos->size(); }
+  size_t size() const override;
 
-  const std::shared_ptr<const PosList> pos_list() const { return _pos; }
-  const std::shared_ptr<const Table> referenced_table() const { return _referenced_table; }
+  const std::shared_ptr<const PosList> pos_list() const;
 
-  ColumnID referenced_column_id() const { return _referenced_column_id; }
+  const std::shared_ptr<const Table> referenced_table() const;
+
+  ColumnID referenced_column_id() const;
 
  protected:
   const std::shared_ptr<const Table> _referenced_table;
