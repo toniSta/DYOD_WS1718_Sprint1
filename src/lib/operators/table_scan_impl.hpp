@@ -1,25 +1,22 @@
 #pragma once
 
+#include <limits>
 #include <memory>
 #include <string>
 #include <utility>
 #include <vector>
-#include <limits>
 
 #include "resolve_type.hpp"
 #include "storage/chunk.hpp"
-#include "storage/reference_column.hpp"
-#include "storage/value_column.hpp"
 #include "storage/dictionary_column.hpp"
+#include "storage/reference_column.hpp"
 #include "storage/table.hpp"
+#include "storage/value_column.hpp"
 
 #include "table_scan.hpp"
 #include "types.hpp"
 
 namespace opossum {
-
-// constexpr ValueID INVALID_VALUE_ID{std::numeric_limits<ValueID::base_type>::max()};
-
 
 class BaseTableScanImpl {
  public:
@@ -37,6 +34,42 @@ class TableScanImpl : public BaseTableScanImpl {
         _column_id(column_id),
         _scan_type(scan_type),
         _search_value(type_cast<T>(search_value)) {}
+
+  const std::shared_ptr<const Table> on_execute() override {
+    _pos_list = std::make_shared<PosList>(std::initializer_list<RowID>({}));
+    auto table = std::make_shared<Table>(0);
+    auto new_referenced_table = _input_table;
+    Chunk chunk;
+
+    for (auto chunk_id = ChunkID{0}; chunk_id < _input_table->chunk_count(); chunk_id++) {
+      const auto base_column = _input_table->get_chunk(chunk_id).get_column(_column_id);
+
+      if (const auto column = std::dynamic_pointer_cast<ValueColumn<T>>(base_column)) {
+        _scan_value_column(column, chunk_id);
+      } else if (const auto column = std::dynamic_pointer_cast<DictionaryColumn<T>>(base_column)) {
+        _scan_dictionary_column(column, chunk_id);
+      } else if (const auto column = std::dynamic_pointer_cast<ReferenceColumn>(base_column)) {
+        // use the old referenced table for the current table scan result
+        new_referenced_table = column->referenced_table();
+        _scan_reference_column(column, chunk_id);
+      }
+    }
+
+    for (auto column_id = ColumnID{0}; column_id < _input_table->col_count(); column_id++) {
+      chunk.add_column(std::make_shared<ReferenceColumn>(new_referenced_table, column_id, _pos_list));
+      table->add_column_definition(_input_table->column_name(column_id), _input_table->column_type(column_id));
+    }
+
+    table->emplace_chunk(std::move(chunk));
+    return table;
+  }
+
+ protected:
+  std::shared_ptr<PosList> _pos_list;
+  const std::shared_ptr<const Table> _input_table;
+  const ColumnID _column_id;
+  const ScanType _scan_type;
+  const T _search_value;
 
   bool _compare(const T& lhs, const T& rhs) {
     switch (_scan_type) {
@@ -106,14 +139,16 @@ class TableScanImpl : public BaseTableScanImpl {
       case ScanType::OpEquals:
         bound = dictionary_column->lower_bound(_search_value);
         attribute_vector_scan_type = ScanType::OpEquals;
-        if(bound == INVALID_VALUE_ID || dictionary_column->get(bound) != _search_value) {
+        // Add nothing to _pos_list if search value was not found in the dictionary
+        if (bound == INVALID_VALUE_ID || dictionary_column->get(bound) != _search_value) {
           return;
         }
         break;
       case ScanType::OpNotEquals:
         bound = dictionary_column->lower_bound(_search_value);
         attribute_vector_scan_type = ScanType::OpNotEquals;
-        if(bound == INVALID_VALUE_ID || dictionary_column->get(bound) != _search_value) {
+        // Add all rows to _pos_list if search value was not found in the dictionary
+        if (bound == INVALID_VALUE_ID || dictionary_column->get(bound) != _search_value) {
           _add_all_rows_to_pos_list(attribute_vector, chunk_id);
           return;
         }
@@ -125,66 +160,42 @@ class TableScanImpl : public BaseTableScanImpl {
       case ScanType::OpGreaterThanEquals:
         bound = dictionary_column->lower_bound(_search_value);
         attribute_vector_scan_type = ScanType::OpGreaterThanEquals;
-        break;        
+        break;
       default:
         throw std::runtime_error("Unknown Operator");
-      }
-
-      if (bound == INVALID_VALUE_ID) {
-        if (_scan_type == ScanType::OpLessThan || _scan_type == ScanType::OpLessThanEquals) {
-          _add_all_rows_to_pos_list(attribute_vector, chunk_id);
-        }
-        return;
-      }
-
-      for (auto counter = ChunkOffset(0); counter < attribute_vector->size(); counter++) {
-        if (_compare_value_ids(attribute_vector->get(counter), bound, attribute_vector_scan_type)) {
-          _pos_list->push_back(RowID{ChunkID{chunk_id}, counter});
-        }
-      }
     }
 
-  void _scan_reference_column(std::shared_ptr<ReferenceColumn> reference_column, ChunkID chunk_id) {
-      for (auto row_id = ChunkOffset{0}; row_id < reference_column->size(); row_id++) {
-        if (_compare(type_cast<T>((*reference_column)[row_id]), _search_value)) {
-          _pos_list->push_back(RowID{ChunkID{chunk_id}, row_id});
-        }
+    if (bound == INVALID_VALUE_ID) {
+      if (_scan_type == ScanType::OpLessThan || _scan_type == ScanType::OpLessThanEquals) {
+        _add_all_rows_to_pos_list(attribute_vector, chunk_id);
+      }
+      return;
+    }
+
+    for (auto counter = ChunkOffset(0); counter < attribute_vector->size(); counter++) {
+      if (_compare_value_ids(attribute_vector->get(counter), bound, attribute_vector_scan_type)) {
+        _pos_list->push_back(RowID{ChunkID{chunk_id}, counter});
       }
     }
-
-  const std::shared_ptr<const Table> on_execute() override {
-    _pos_list = std::make_shared<PosList>(std::initializer_list<RowID>({}));
-    auto table = std::make_shared<Table>(0);
-    Chunk chunk;
-
-    for (auto chunk_id = ChunkID{0}; chunk_id < _input_table->chunk_count(); chunk_id++) {
-      const auto base_column = _input_table->get_chunk(chunk_id).get_column(_column_id);
-
-      if (const auto column = std::dynamic_pointer_cast<ValueColumn<T>>(base_column)) {
-        _scan_value_column(column, chunk_id);
-      } else if (const auto column = std::dynamic_pointer_cast<DictionaryColumn<T>>(base_column)) {
-        _scan_dictionary_column(column, chunk_id);
-      } else if (const auto column = std::dynamic_pointer_cast<ReferenceColumn>(base_column)) {
-        _scan_reference_column(column, chunk_id);
-      }
-    }
-
-    for (auto column_id = ColumnID{0}; column_id < _input_table->col_count(); column_id++) {
-      chunk.add_column(std::make_shared<ReferenceColumn>(_input_table, column_id, _pos_list));
-      table->add_column_definition(_input_table->column_name(column_id), _input_table->column_type(column_id));
-    }
-
-    table->emplace_chunk(std::move(chunk));
-
-    return table;
   }
 
- protected:
-  std::shared_ptr<PosList> _pos_list;
-  const std::shared_ptr<const Table> _input_table;
-  const ColumnID _column_id;
-  const ScanType _scan_type;
-  const T _search_value;
+  void _scan_reference_column(std::shared_ptr<ReferenceColumn> reference_column, ChunkID chunk_id) {
+    bool add_to_pos_list;
+    for (const auto pos : *reference_column->pos_list()) {
+      // getting the referenced column
+      auto base_column = reference_column->referenced_table()
+                             ->get_chunk(pos.chunk_id)
+                             .get_column(reference_column->referenced_column_id());
+      if (auto column = std::dynamic_pointer_cast<ValueColumn<T>>(base_column)) {
+        add_to_pos_list = _compare(column->values()[pos.chunk_offset], _search_value);
+      } else if (auto column = std::dynamic_pointer_cast<DictionaryColumn<T>>(base_column)) {
+        add_to_pos_list = _compare(column->get(pos.chunk_offset), _search_value);
+      }
+      if (add_to_pos_list) {
+        _pos_list->push_back(RowID{pos.chunk_id, pos.chunk_offset});
+      }
+    }
+  }
 };
 
 }  // namespace opossum

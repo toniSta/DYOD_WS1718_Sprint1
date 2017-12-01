@@ -25,5 +25,4 @@ const std::shared_ptr<const Table> ReferenceColumn::referenced_table() const { r
 
 ColumnID ReferenceColumn::referenced_column_id() const { return _referenced_column_id; }
 
-
 }  // namespace opossum
