@@ -31,13 +31,13 @@ class TableScan : public AbstractOperator {
   const AllTypeVariant& search_value() const;
 
  protected:
-  std::shared_ptr<const Table> _on_execute() override;
   std::shared_ptr<BaseTableScanImpl> _impl;
-
   const std::shared_ptr<const AbstractOperator> _in;
   const ColumnID _column_id;
   const ScanType _scan_type;
   const AllTypeVariant _search_value;
+
+  std::shared_ptr<const Table> _on_execute() override;
 };
 
 }  // namespace opossum

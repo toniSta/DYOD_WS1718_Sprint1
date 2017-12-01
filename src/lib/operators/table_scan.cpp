@@ -26,10 +26,9 @@ ScanType TableScan::scan_type() const { return _scan_type; }
 const AllTypeVariant& TableScan::search_value() const { return _search_value; }
 
 std::shared_ptr<const Table> TableScan::_on_execute() {
-  auto input_table = _in->get_output();
-  DebugAssert(input_table, "No input table given");
-  const auto& column_type = input_table->column_type(_column_id);
-  _impl = make_unique_by_column_type<BaseTableScanImpl, TableScanImpl>(column_type, _in, _column_id, _scan_type,
+  const auto input_table = _in->get_output();
+  const auto column_type = input_table->column_type(_column_id);
+  _impl = make_unique_by_column_type<BaseTableScanImpl, TableScanImpl>(column_type, input_table, _column_id, _scan_type,
                                                                        _search_value);
   return _impl->on_execute();
 }

@@ -29,9 +29,9 @@ class BaseTableScanImpl {
 template <typename T>
 class TableScanImpl : public BaseTableScanImpl {
  public:
-  explicit TableScanImpl(const std::shared_ptr<const AbstractOperator> in, ColumnID column_id, const ScanType scan_type,
+  explicit TableScanImpl(const std::shared_ptr<const Table> input_table, ColumnID column_id, const ScanType scan_type,
                          const AllTypeVariant search_value)
-      : _input_table(in->get_output()), _column_id(column_id), _scan_type(scan_type), _search_value(type_cast<T>(search_value)) {}
+      : _input_table(input_table), _column_id(column_id), _scan_type(scan_type), _search_value(type_cast<T>(search_value)) {}
 
   bool compare(const T& lhs, const T& rhs) {
     switch (_scan_type) {
