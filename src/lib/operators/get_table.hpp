@@ -13,6 +13,7 @@ class GetTable : public AbstractOperator {
  public:
   explicit GetTable(const std::string& name);
 
+  // Get the name of the specified table
   const std::string& table_name() const;
 
  protected:

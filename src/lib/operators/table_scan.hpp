@@ -20,10 +20,13 @@ class TableScan : public AbstractOperator {
 
   ~TableScan();
 
+  // Return the ColumnID we are scanning on
   ColumnID column_id() const;
 
+  // Return the current scan type
   ScanType scan_type() const;
 
+  // Return the value, we are searching for
   const AllTypeVariant& search_value() const;
 
  protected:

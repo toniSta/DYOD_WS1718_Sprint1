@@ -27,14 +27,19 @@ class ReferenceColumn : public BaseColumn {
 
   const AllTypeVariant operator[](const size_t i) const override;
 
+  // Append is not allowed, since reference columns are immutable
   void append(const AllTypeVariant&) override;
 
+  // Return size of the reference column
   size_t size() const override;
 
+  // Return the reference column's position list
   const std::shared_ptr<const PosList> pos_list() const;
 
+  // returns a pointer of the referenced table
   const std::shared_ptr<const Table> referenced_table() const;
 
+  // returns the ColumnID of the referenced column
   ColumnID referenced_column_id() const;
 
  protected:

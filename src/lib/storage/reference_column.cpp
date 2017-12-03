@@ -7,10 +7,12 @@
 #include "resolve_type.hpp"
 #include "types.hpp"
 #include "utils/assert.hpp"
+#include "utils/performance_warning.hpp"
 
 namespace opossum {
 
 const AllTypeVariant ReferenceColumn::operator[](const size_t i) const {
+  PerformanceWarning("operator[] used");
   const auto row_id = _pos->at(i);
   return (*_referenced_table->get_chunk(row_id.chunk_id).get_column(_referenced_column_id))[row_id.chunk_offset];
 }
