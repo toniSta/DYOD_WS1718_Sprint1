@@ -4,6 +4,7 @@
 
 #include "../base_test.hpp"
 #include "gtest/gtest.h"
+#include "type_cast.hpp"
 
 #include "../lib/storage/value_column.hpp"
 
@@ -45,6 +46,13 @@ TEST_F(StorageValueColumnTest, AddValueOfDifferentType) {
   vc_double.append(4);
   EXPECT_EQ(vc_double.size(), 1u);
   EXPECT_THROW(vc_double.append("Hi"), std::exception);
+}
+
+TEST_F(StorageValueColumnTest, GetValueFromColumn) {
+  vc_str.append(3);
+  vc_str.append(4.44);
+  EXPECT_EQ(type_cast<std::string>(vc_str[0]), "3");
+  EXPECT_EQ(type_cast<std::string>(vc_str[1]), "4.44");
 }
 
 }  // namespace opossum

@@ -16,7 +16,7 @@ namespace opossum {
 template <typename T>
 const AllTypeVariant ValueColumn<T>::operator[](const size_t i) const {
   PerformanceWarning("operator[] used");
-  return _column_values.at(i);
+  return _column_values[i];
 }
 
 template <typename T>
@@ -27,6 +27,11 @@ void ValueColumn<T>::append(const AllTypeVariant& val) {
 template <typename T>
 size_t ValueColumn<T>::size() const {
   return _column_values.size();
+}
+
+template <typename T>
+const std::vector<T>& ValueColumn<T>::values() const {
+  return _column_values;
 }
 
 EXPLICITLY_INSTANTIATE_COLUMN_TYPES(ValueColumn);

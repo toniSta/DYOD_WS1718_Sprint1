@@ -8,6 +8,7 @@
 #include "gtest/gtest.h"
 
 #include "../lib/resolve_type.hpp"
+#include "../lib/storage/dictionary_column.hpp"
 #include "../lib/storage/table.hpp"
 
 namespace opossum {
@@ -40,6 +41,11 @@ TEST_F(StorageTableTest, GetChunk) {
   t.get_chunk(ChunkID{1});
 }
 
+TEST_F(StorageTableTest, GetChunkConst) {
+  const Table& t2 = t;
+  t2.get_chunk(ChunkID{0});
+}
+
 TEST_F(StorageTableTest, ColCount) { EXPECT_EQ(t.col_count(), 2u); }
 
 TEST_F(StorageTableTest, RowCount) {
@@ -70,5 +76,30 @@ TEST_F(StorageTableTest, GetColumnIdByName) {
 }
 
 TEST_F(StorageTableTest, GetChunkSize) { EXPECT_EQ(t.chunk_size(), 2u); }
+
+TEST_F(StorageTableTest, CompressChunk) {
+  t.append({4, "Hello,"});
+  t.append({6, "world"});
+  t.append({3, "!"});
+  t.compress_chunk(ChunkID(0));
+  EXPECT_EQ(t.chunk_count(), 2u);
+  auto col = t.get_chunk(ChunkID(0)).get_column(ColumnID(0));
+  auto dict = std::dynamic_pointer_cast<DictionaryColumn<int>>(col);
+  EXPECT_EQ(dict->get(0), 4);
+}
+
+TEST_F(StorageTableTest, NoDuplicateTableNames) { EXPECT_THROW(t.add_column("col_1", "int"), std::exception); }
+
+TEST_F(StorageTableTest, AddColumnsToEmptyTablesOnly) {
+  t.add_column("col_3", "int");
+  t.append({4, "Hello,", 1});
+  t.append({6, "world", 2});
+  EXPECT_THROW(t.add_column("col_4", "int"), std::exception);
+}
+
+TEST_F(StorageTableTest, ColumnNames) {
+  std::vector<std::string> column_names = {"col_1", "col_2"};
+  EXPECT_EQ(t.column_names(), column_names);
+}
 
 }  // namespace opossum

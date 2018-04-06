@@ -46,6 +46,9 @@ class Table : private Noncopyable {
   Chunk& get_chunk(ChunkID chunk_id);
   const Chunk& get_chunk(ChunkID chunk_id) const;
 
+  // Adds a chunk to the table. If the first chunk is empty, it is replaced.
+  void emplace_chunk(Chunk chunk);
+
   // Returns a list of all column names.
   const std::vector<std::string>& column_names() const;
 
@@ -78,6 +81,9 @@ class Table : private Noncopyable {
 
   // creates a new chunk and appends it
   void create_new_chunk();
+
+  // compresses a ValueColumn into a DictionaryColumn
+  void compress_chunk(ChunkID chunk_id);
 
  protected:
   std::vector<std::string> _column_names_vector;
